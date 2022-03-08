@@ -57,8 +57,8 @@ public class BeerServiceTest {
         Beer expectedSavedBeer = beerMapper.toModel(expectedBeerDTO);
 
         //when
-        Mockito.when(beerRepository.findByName(expectedBeerDTO.getName())).thenReturn(Optional.empty());
-        Mockito.when(beerRepository.save(expectedSavedBeer)).thenReturn(expectedSavedBeer);
+        when(beerRepository.findByName(expectedBeerDTO.getName())).thenReturn(Optional.empty());
+        when(beerRepository.save(expectedSavedBeer)).thenReturn(expectedSavedBeer);
 
         //then
         BeerDTO createBeerDTO = beerService.createBeer(expectedBeerDTO);
@@ -69,6 +69,21 @@ public class BeerServiceTest {
         assertThat(createBeerDTO.getQuantity(), is(equalTo(expectedBeerDTO.getQuantity())));
 
         assertThat(createBeerDTO.getQuantity(),is(greaterThan(2)));
+    }
+
+    @Test
+    void whenAlreadyRegisteredBeerInformedThenAnExceptionShouldBeThrown() {
+        //given
+        BeerDTO expectedBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        Beer duplicateBeer = beerMapper.toModel(expectedBeerDTO);
+
+        //when
+        when(beerRepository.findByName(expectedBeerDTO.getName())).thenReturn(Optional.of(duplicateBeer));
+
+        //then
+        assertThrows(BeerAlreadyRegisteredException.class,() ->beerService.createBeer(expectedBeerDTO));
+
+
     }
 
     /*@Test
@@ -89,7 +104,7 @@ public class BeerServiceTest {
         assertThat(createdBeerDTO.getQuantity(), is(equalTo(expectedBeerDTO.getQuantity())));
     }*/
 
-    @Test
+    /*@Test
     void whenAlreadyRegisteredBeerInformedThenAnExceptionShouldBeThrown() {
         // given
         BeerDTO expectedBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
@@ -100,7 +115,7 @@ public class BeerServiceTest {
 
         // then
         assertThrows(BeerAlreadyRegisteredException.class, () -> beerService.createBeer(expectedBeerDTO));
-    }
+    }*/
 
     @Test
     void whenValidBeerNameIsGivenThenReturnABeer() throws BeerNotFoundException {
